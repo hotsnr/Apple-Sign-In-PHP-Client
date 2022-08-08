@@ -115,6 +115,40 @@ class Client
     }
 
     /**
+     * Revokes provided token
+     *
+     * @param string $token
+     *
+     * @throws Exception
+     */
+    public function revokeToken($token)
+    {
+        $response = $this->httpClient->post(
+            $this->config->get(Config::API_REVOKE_ENDPOINT),
+            [
+                RequestOptions::FORM_PARAMS => [
+                    'token' => $token,
+                    'client_id' => $this->config->get(Config::CLIENT_ID),
+                    'client_secret' => $this->generateClientSecret(),
+                ],
+                RequestOptions::HEADERS => [
+                    'Accept' => 'application/json'
+                ]
+            ]
+        );
+
+        if ($response->getStatusCode() !== self::HTTP_OK) {
+            throw new Exception(
+                sprintf(
+                    'Received %d response while Revoking token. Response Body: %s',
+                    $response->getStatusCode(),
+                    $response->getBody()->getContents()
+                )
+            );
+        }
+    }
+
+    /**
      * Generate a client secret using the private key downloaded from the
      * Apple Developer area
      *
